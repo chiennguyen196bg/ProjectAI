@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
  *
  * @author Chien Nguyen
  */
-public class Preprocessing {
+public class PreProcessing {
 
     // Chuyen doi ve anh den trang
     public static BufferedImage convertToBlackAndWhiteImage(BufferedImage img) {

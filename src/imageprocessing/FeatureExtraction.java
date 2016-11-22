@@ -17,24 +17,34 @@ import javax.imageio.ImageIO;
  * @author Chien Nguyen
  */
 public class FeatureExtraction {
-    
+
     // chuyển ảnh thành về vector đặc trung có độ dài height * width
-     public static double[] chuanHoa(BufferedImage originalImage, int height, int width) throws IOException {
+    public static double[] chuanHoa(BufferedImage originalImage, int height, int width) {
         BufferedImage resizedImage = new BufferedImage(width, height, originalImage.getType());
         Graphics2D g = resizedImage.createGraphics();
         g.drawImage(originalImage, 0, 0, width, height, null);
         g.dispose();
-        ImageIO.write(resizedImage, "png", new File("C:\\Users\\Chien Nguyen\\Desktop\\test.png"));
-        double[] featureArray = new double[height*width];
+//        ImageIO.write(resizedImage, "png", new File("C:\\Users\\Chien Nguyen\\Desktop\\test.png"));
+        double[] featureArray = new double[height * width];
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 Color color = new Color(resizedImage.getRGB(col, row));
-                if(color.getBlue() == 0)
+                if (color.getBlue() == 0) {
                     featureArray[row * width + col] = 1.0;
-                else
+                } else {
                     featureArray[row * width + col] = 0.0;
+                }
             }
         }
         return featureArray;
+    }
+
+    public static double[] getFeatureByZoning(BufferedImage originalImage, int h, int w) {
+        int originHeight = originalImage.getHeight();
+        int originWidth = originalImage.getWidth();
+
+        int heightRatio = (int) Math.ceil(originHeight * 1.0 / h);
+        int widthRatio = (int) Math.ceil(originWidth * 1.0 / w);
+        return null;
     }
 }
