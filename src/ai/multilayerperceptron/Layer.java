@@ -17,7 +17,6 @@ public class Layer {
     private ArrayList<Neuron> neurons;
     private int size, prevSize;
     private double[] output;
-    private double[] input;
 
     public Layer(int prevSize, int size, TransferFunction func) {
 
@@ -34,7 +33,6 @@ public class Layer {
 
     public double[] evaluate(double[] input) {
         assert (input.length == prevSize);
-        this.input = input;
         
         for (int iNeuron = 0; iNeuron < size; iNeuron++) {
             output[iNeuron] = neurons.get(iNeuron).activate(input);
@@ -42,18 +40,23 @@ public class Layer {
         return output;
     }
 
-    public double[] getInput() {
-        return input;
-    }
+    
 
     
     
-    public void updateWeights(double[][] deltaWeights){
-        assert(deltaWeights.length == size);
-        for(int i = 0; i < size; i++){
-            neurons.get(i).updateWeights(deltaWeights[i]);
-        }
-    }
+//    public void updateWeights(double[][] deltaWeights){
+//        assert(deltaWeights.length == size);
+//        for(int i = 0; i < size; i++){
+//            neurons.get(i).updateWeights(deltaWeights[i]);
+//        }
+//    }
+    
+//    public void updateWeights(double[][] deltaWeights, double momentum){
+//        assert(deltaWeights.length == size);
+//        for(int i = 0; i < size; i++){
+//            neurons.get(i).updateWeights(deltaWeights[i], momentum);
+//        }
+//    }
 
     //setter and getter
     public double[] getOutput() {
@@ -86,6 +89,12 @@ public class Layer {
 
     public void setPrevSize(int prevSize) {
         this.prevSize = prevSize;
+    }
+
+    public void updateWeights(double[] deltas, double learningRate, double momentum) {
+        for(int i = 0; i < size; i++){
+            neurons.get(i).updateWeights(deltas[i], learningRate, momentum);
+        }
     }
 
 }
