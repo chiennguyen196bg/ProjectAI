@@ -82,7 +82,7 @@ public class MultiLayerPerceptron {
                     newValue = newValue + layer[i].getNeurals()[j].getWeight()[k] * layer[i-1].getNeurals()[k].getValue();
                 }
 
-                newValue = newValue + layer[i].getNeurals()[j].getSigma();
+                newValue = newValue + layer[i].getNeurals()[j].getBias();
                 layer[i].getNeurals()[j].setValue(tranFunct.evalute(newValue));     // value = f(u)
             }
         }
