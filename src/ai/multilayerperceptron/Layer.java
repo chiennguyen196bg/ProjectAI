@@ -16,14 +16,12 @@ public class Layer {
 
     private ArrayList<Neuron> neurons;
     private int size, prevSize;
-    private double[] output;
 
     public Layer(int prevSize, int size, TransferFunction func) {
 
         this.size = size;
         this.prevSize = prevSize;
         
-        output = new double[size];
         
         this.neurons = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -32,8 +30,7 @@ public class Layer {
     }
 
     public double[] evaluate(double[] input) {
-        assert (input.length == prevSize);
-        
+        double output[] = new double[size];
         for (int iNeuron = 0; iNeuron < size; iNeuron++) {
             output[iNeuron] = neurons.get(iNeuron).activate(input);
         }
@@ -59,9 +56,6 @@ public class Layer {
 //    }
 
     //setter and getter
-    public double[] getOutput() {
-        return output;
-    }
 
     public ArrayList<Neuron> getNeurons() {
         return neurons;
@@ -87,14 +81,5 @@ public class Layer {
         return prevSize;
     }
 
-    public void setPrevSize(int prevSize) {
-        this.prevSize = prevSize;
-    }
-
-    public void updateWeights(double[] deltas, double learningRate, double momentum) {
-        for(int i = 0; i < size; i++){
-            neurons.get(i).updateWeights(deltas[i], learningRate, momentum);
-        }
-    }
 
 }

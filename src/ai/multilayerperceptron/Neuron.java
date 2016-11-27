@@ -14,19 +14,18 @@ import ai.transferfunction.TransferFunction;
 public class Neuron {
 
     private double[] synapticWeights;
-    private double sum;
+    private double output;
     private double bias;
+    private double delta;
+    private TransferFunction transferFunc;
+    private double[] input;
 
     private double prevDeltaBias;
-    private double [] previousDeltaWeights;
-    private TransferFunction transferFunc;
-    private double [] input;
-    private int prevLayerSize;
+    private double[] previousDeltaWeights;
 
     public Neuron(int prevLayerSize, TransferFunction func) {
 
         this.transferFunc = func;
-        this.prevLayerSize = prevLayerSize;
         this.synapticWeights = new double[prevLayerSize];
 
         for (int i = 0; i < synapticWeights.length; i++) {
@@ -39,46 +38,45 @@ public class Neuron {
 
     public double activate(double[] input) {
         this.input = input;
-        sum = 0;
-        assert (input.length == synapticWeights.length);
+        double sum = 0;
         for (int i = 0, size = input.length; i < size; i++) {
-            sum += input[i] + synapticWeights[i];
+            sum += input[i] * synapticWeights[i];
         }
-        
+
         sum += bias;
-        
-        return transferFunc.evalute(sum);
+        this.output = transferFunc.evalute(sum);
+        return this.output;
     }
 
-    private void updateWeights(double [] deltaWeights){
-        assert(deltaWeights.length == synapticWeights.length);
-        for(int i = 0, size = synapticWeights.length; i < size; i++){
-            synapticWeights[i] += deltaWeights[i];
-        }
-        this.previousDeltaWeights = deltaWeights;
-    }
-    
+//    private void updateWeights(double [] deltaWeights){
+//        assert(deltaWeights.length == synapticWeights.length);
+//        for(int i = 0, size = synapticWeights.length; i < size; i++){
+//            synapticWeights[i] += deltaWeights[i];
+//        }
+//        this.previousDeltaWeights = deltaWeights;
+//    }
     public double getActivationDerivative() {
-        return this.transferFunc.evaluteDerivate(sum);
+        return this.transferFunc.evaluteDerivate(output);
+    }
+
+    protected void updateSynapticWeightsAndBias(double learningRate, double momentum) {
+        int size = synapticWeights.length;
+        for (int i = 0; i < size; i++) {
+            double deltaWeight = learningRate * delta * input[i];
+            deltaWeight += momentum * previousDeltaWeights[i];
+            synapticWeights[i] += deltaWeight;
+            previousDeltaWeights[i] = deltaWeight;
+        }
+        double deltaBias = learningRate * delta + momentum * prevDeltaBias;
+        bias += deltaBias;
+        prevDeltaBias = deltaBias;
+        delta = 0;
     }
 
     public double[] getSynapticWeights() {
         return synapticWeights;
     }
 
-    public double getSynapticWeight(int index) {
-        return synapticWeights[index];
-    }
-
-    public void setSynapticWeights(double[] synapticWeights) {
-        this.synapticWeights = synapticWeights;
-    }
-
-    public double getSum() {
-        return sum;
-    }
-    
-    
     public double getBias() {
         return bias;
     }
@@ -86,10 +84,23 @@ public class Neuron {
     public void setBias(double bias) {
         this.bias = bias;
     }
-    
-//    public void setSum(double sum) {
-//        this.sum = sum;
-//    }
+
+    public double getOutput() {
+        return output;
+    }
+
+    public double getDelta() {
+        return delta;
+    }
+
+    public void setDelta(double delta) {
+        this.delta = delta;
+    }
+
+    public void resetDelta() {
+        this.delta = 0;
+    }
+
     public TransferFunction getTransferFunc() {
         return transferFunc;
     }
@@ -98,29 +109,27 @@ public class Neuron {
         this.transferFunc = transferFunc;
     }
 
-    public void updateWeights(double delta, double learningRate, double momentum) {
-        double[] deltaWeights = new double[prevLayerSize];
-        for(int i = 0, size = synapticWeights.length; i < size; i++){
-            
-            // tinh deltaWeight voi tham so learningRate va momentum
-            deltaWeights[i] = learningRate * delta * input[i];
-            deltaWeights[i] += momentum*previousDeltaWeights[i];
-            
-            // Cap nhat synapticWeight
-            synapticWeights[i] += deltaWeights[i];
-        }
-        
-        // cap nhap previousDeltaWeights
-        this.previousDeltaWeights = deltaWeights;
-        
-        // cap nhap bias
-        double deltaBias = learningRate * delta;
-        deltaBias += momentum*prevDeltaBias;
-        
-        this.bias += deltaBias;
-        this.prevDeltaBias = deltaBias;
-    }
-    
-     
-
+//    protected void updateWeights(double learningRate) {
+//        int size = synapticWeights.length;
+//        double[] deltaWeights = new double[size];
+//        for(int i = 0; i < size; i++){
+//            
+//            // tinh deltaWeight voi tham so learningRate va momentum
+//            deltaWeights[i] = learningRate * delta * input[i];
+////            deltaWeights[i] += momentum*previousDeltaWeights[i];
+//            
+//            // Cap nhat synapticWeight
+//            synapticWeights[i] += deltaWeights[i];
+//        }
+//        
+//        // cap nhap previousDeltaWeights
+////        this.previousDeltaWeights = deltaWeights;
+//        
+//        // cap nhap bias
+//        double deltaBias = learningRate * delta;
+////        deltaBias += momentum*prevDeltaBias;
+//        
+//        this.bias += deltaBias;
+////        this.prevDeltaBias = deltaBias;
+//    }
 }

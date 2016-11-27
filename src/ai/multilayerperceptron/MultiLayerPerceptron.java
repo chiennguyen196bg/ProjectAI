@@ -21,13 +21,13 @@ import java.util.logging.Logger;
  *
  * @author Chien Nguyen
  */
-public class MultilayerPerceptron {
-
+public class MultiLayerPerceptron {
+    
     private ArrayList<Layer> layers;
     private int nLayers;
     private int inputSize;
-
-    public MultilayerPerceptron(int[] layers, TransferFunction func) {
+    
+    public MultiLayerPerceptron(int[] layers, TransferFunction func) {
         this.inputSize = layers[0];
         this.layers = new ArrayList<>();
         for (int i = 1, size = layers.length; i < size; i++) {
@@ -35,23 +35,18 @@ public class MultilayerPerceptron {
         }
         this.nLayers = this.layers.size();
     }
-
-    public MultilayerPerceptron(int[] layers) {
+    
+    public MultiLayerPerceptron(int[] layers) {
         this(layers, new SigmoidalTransfer());
     }
-
+    
     public double[] execute(double[] input) {
-
-        assert (input.length == inputSize);
-
         for (Layer layer : layers) {
             input = layer.evaluate(input);
         }
         return input;
     }
 
-    
-    
     // khoi tao mang delta
     private double[][] initDeltas() {
         double[][] deltas = new double[nLayers][];
@@ -71,70 +66,49 @@ public class MultilayerPerceptron {
         return deltaWeights;
     }
 
-    // tinh delta
-    private double[][] computeDeltas(double[] desiredOutput) {
-        double[][] deltas = initDeltas();
+    
+
+    private void computeDeltaOfNeuron(double[] targetOutput) {
         // tinh delta cho output layer
-        int lastLayer = nLayers - 1;
-        double[] output = layers.get(lastLayer).getOutput();
-        for (int i = 0; i < layers.get(lastLayer).size(); i++) {
-
-            double error = desiredOutput[i] - output[i];
-            Neuron neuron = layers.get(lastLayer).getNeuron(i);
-            deltas[lastLayer][i] = neuron.getActivationDerivative() * error;
+        Layer lastLayer = layers.get(nLayers - 1);
+        for (int i = 0, size = lastLayer.size(); i < size; i++) {
+            Neuron neuron = lastLayer.getNeuron(i);
+            double e = targetOutput[i] - neuron.getOutput();
+            neuron.setDelta(e * neuron.getActivationDerivative());
         }
-
-        // tinh delta cho hidden layer
-        for (int indexLayer = nLayers - 2; indexLayer > 0; indexLayer--) {
-            Layer layer = layers.get(indexLayer);
-            for (int indexNeuron = 0; indexNeuron < layer.size(); indexNeuron++) {
-                double error = 0;
-                Layer nextLayer = layers.get(indexLayer + 1);
-                for (int iNextLayerNeuron = 0; iNextLayerNeuron < nextLayer.size(); iNextLayerNeuron++) {
-                    error += nextLayer.getNeuron(iNextLayerNeuron).getSynapticWeight(indexNeuron)
-                            * deltas[indexLayer + 1][iNextLayerNeuron];
+        //tinh delta cho hidden layer
+        for(int i = nLayers - 2; i >= 0; i--){
+            Layer layer = layers.get(i);
+            Layer nextLayer = layers.get(i + 1);
+            for(int iNeuron = 0, size1 = layer.size(); iNeuron < size1; iNeuron++){
+                double e = 0;
+                for(Neuron neuron : nextLayer.getNeurons()){
+                    e += neuron.getDelta() * neuron.getSynapticWeights()[iNeuron];
                 }
-                deltas[indexLayer][indexNeuron] = error * layer.getNeuron(indexNeuron).getActivationDerivative();
+                Neuron neuron = layer.getNeuron(iNeuron);
+                neuron.setDelta(e * neuron.getActivationDerivative());
             }
         }
         
-        return deltas;
     }
-
-    //Tinh deltaWeight
-//    private void computeDeltaWeights(double[][][] deltaWeights, double[][] deltas, double learningRate) {
-//        for (int indexLayer = 0; indexLayer < nLayers; indexLayer++) {
-//            Layer layer = layers.get(indexLayer);
-//            int inputSize = layer.getPrevSize();
-//            for (int indexNeuron = 0; indexNeuron < layer.size(); indexNeuron++) {
-//                for (int indexWeight = 0; indexWeight < inputSize; indexWeight++) {
-//                    deltaWeights[indexLayer][indexNeuron][indexWeight]
-//                            += learningRate * deltas[indexLayer][indexNeuron]
-//                            * layer.getInput()[indexWeight];
-//                }
-//            }
-//        }
-//    }
-
-    public double backPropagate(double[] example, double[] desiredOutput, double learningRate, double momentum) {
-        assert (example.length == inputSize);
+    
+    public double backPropagate(
+            double[] example, double[] targetOutput,
+            double learningRate, double momentum
+    ) {
         
         double output[] = execute(example);
         
-        double[][] deltas = computeDeltas(desiredOutput);
+        computeDeltaOfNeuron(targetOutput);
         
-        updateWeights(deltas, learningRate, momentum);
-//        double[][][] deltaWeights = initDeltaWeights();
-        
-        
-        
+        // update weight and bias
+        for(Layer layer : layers){
+            for(Neuron neuron : layer.getNeurons()){
+                neuron.updateSynapticWeightsAndBias(learningRate, momentum);
+            }
+        }
 
-//        computeDeltas(deltas, desiredOutput);
-//        computeDeltaWeights(deltaWeights, deltas, learningRate);
-//
-//        updateWeights(deltaWeights, momentum);
-        
-        return evaluteError(output, desiredOutput);
+        return evaluteError(output, targetOutput);
     }
 
 //    public double batchBackPropagation(ArrayList<double[]> examples, ArrayList<double[]> desiredOutputs, double learningRate) {
@@ -158,7 +132,6 @@ public class MultilayerPerceptron {
 //        updateWeights(deltaWeights);
 //        return err/size;
 //    }
-
 //    private void updateWeights(double[][][] deltaWeights) {
 //        for (int iLayer = 0; iLayer < nLayers; iLayer++) {
 //            layers.get(iLayer).updateWeights(deltaWeights[iLayer]);
@@ -170,39 +143,38 @@ public class MultilayerPerceptron {
 //            layers.get(iLayer).updateWeights(deltaWeights[iLayer], momentum);
 //        }
 //    }
-    
-    private void updateWeights
-        (double[][] deltas, double learningRate, double momentum)
-    {
-        for(int iLayer = 0; iLayer < nLayers; iLayer++){
-            layers.get(iLayer).updateWeights(deltas[iLayer], learningRate, momentum);
-        }
-    }
-    
-    protected double evaluteError(double output[], double desiredOutput[]){
+    protected double evaluteError(double output[], double targetOutput[]) {
         double error = 0;
-        for(int i = 0, size = output.length; i < size; i++){
-            double e = desiredOutput[i] - output[i];
-            error += e*e;
+        for (int i = 0, size = output.length; i < size; i++) {
+            double e = targetOutput[i] - output[i];
+            error += e * e;
         }
-        return error/2;
+        return error / 2;
     }
     
-    public void saveNetwork(String patch){
-        try (FileWriter out = new FileWriter(patch); 
+    public void resetDelta(){
+        for(Layer layer : layers){
+            for(Neuron neuron : layer.getNeurons()){
+                neuron.resetDelta();
+            }
+        }
+    }
+    
+    public void saveNetwork(String patch) {
+        try (FileWriter out = new FileWriter(patch);
                 BufferedWriter bw = new BufferedWriter(out)) {
             
             bw.write(String.valueOf(inputSize));
             bw.write(" ");
-            for(Layer layer : layers){
+            for (Layer layer : layers) {
                 bw.write(String.valueOf(layer.size()));
                 bw.write(" ");
             }
             bw.newLine();
             
-            for(Layer layer : layers){
-                for(Neuron neuron : layer.getNeurons()){
-                    for(double d : neuron.getSynapticWeights()){
+            for (Layer layer : layers) {
+                for (Neuron neuron : layer.getNeurons()) {
+                    for (double d : neuron.getSynapticWeights()) {
                         bw.write(String.valueOf(d));
                         bw.write(" ");
                     }
@@ -212,40 +184,34 @@ public class MultilayerPerceptron {
             }
             
         } catch (IOException ex) {
-            Logger.getLogger(MultilayerPerceptron.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MultiLayerPerceptron.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public static MultilayerPerceptron loadNetwork(String patch){
-        try (FileReader in = new FileReader(patch); 
+    public static MultiLayerPerceptron loadNetwork(String patch) {
+        try (FileReader in = new FileReader(patch);
                 BufferedReader br = new BufferedReader(in)) {
             String str;
             ArrayList<Integer> layer = new ArrayList<>();
             str = br.readLine();
             StringTokenizer st = new StringTokenizer(str, " ");
-            while(st.hasMoreTokens()){
+            while (st.hasMoreTokens()) {
                 String tempStr = st.nextToken();
                 layer.add(Integer.parseInt(tempStr));
             }
             
-            
             int[] intLayer = new int[layer.size()];
-            for(int i = 0; i < intLayer.length; i++){
+            for (int i = 0; i < intLayer.length; i++) {
                 intLayer[i] = layer.get(i);
             }
             
-            MultilayerPerceptron mlp = new MultilayerPerceptron(intLayer);
+            MultiLayerPerceptron mlp = new MultiLayerPerceptron(intLayer);
             
-            for(Layer _layer : mlp.layers){
-                for(Neuron neuron : _layer.getNeurons()){
+            for (Layer _layer : mlp.layers) {
+                for (Neuron neuron : _layer.getNeurons()) {
                     double[] weights = neuron.getSynapticWeights();
                     st = new StringTokenizer(br.readLine(), " ");
-//                    int k = 0;
-//                    while(st.hasMoreTokens()){
-//                        weights[k] = Double.parseDouble(st.nextToken());
-//                        k++;
-//                    }
-                    for(int i = 0, size = weights.length; i < size; i++){
+                    for (int i = 0, size = weights.length; i < size; i++) {
                         weights[i] = Double.parseDouble(st.nextToken());
                     }
                     neuron.setBias(Double.parseDouble(st.nextToken()));
@@ -253,7 +219,7 @@ public class MultilayerPerceptron {
             }
             return mlp;
         } catch (IOException ex) {
-            Logger.getLogger(MultilayerPerceptron.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MultiLayerPerceptron.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }

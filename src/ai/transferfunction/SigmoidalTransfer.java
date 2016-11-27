@@ -27,9 +27,11 @@ public class SigmoidalTransfer implements TransferFunction{
     }
 
     @Override
+    /**
+     * @params value = f(x)
+     */
     public double evaluteDerivate(double value) {
-        double f = evalute(value);
-        return a*f*(1 - f);
+        return a*value*(1 - value);
     }
     
 }
