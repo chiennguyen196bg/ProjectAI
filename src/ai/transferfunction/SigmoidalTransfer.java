@@ -11,19 +11,13 @@ package ai.transferfunction;
  */
 public class SigmoidalTransfer implements TransferFunction{
     
-    private double a;
-    
     public SigmoidalTransfer(){
-        this(1);
-    }
-    
-    public SigmoidalTransfer(double a){
-        this.a = a;
+       
     }
     
     @Override
     public double evalute(double value) {
-        return 1 / (1 + Math.pow(Math.E, - a*value));
+        return 1 / (1 + Math.pow(Math.E, -value));
     }
 
     @Override
@@ -31,7 +25,7 @@ public class SigmoidalTransfer implements TransferFunction{
      * @params value = f(x)
      */
     public double evaluteDerivate(double value) {
-        return a*value*(1 - value);
+        return value*(1 - value);
     }
     
 }

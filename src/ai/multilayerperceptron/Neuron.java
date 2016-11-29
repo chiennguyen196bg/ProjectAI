@@ -67,7 +67,7 @@ public class Neuron {
             synapticWeights[i] += deltaWeight;
             previousDeltaWeights[i] = deltaWeight;
         }
-        double deltaBias = learningRate * delta + momentum * prevDeltaBias;
+        double deltaBias = learningRate * delta ;
         bias += deltaBias;
         prevDeltaBias = deltaBias;
         delta = 0;
@@ -75,6 +75,10 @@ public class Neuron {
 
     public double[] getSynapticWeights() {
         return synapticWeights;
+    }
+    
+    protected double getSynapticWeight(int index){
+        return synapticWeights[index];
     }
 
     public double getBias() {
@@ -109,27 +113,4 @@ public class Neuron {
         this.transferFunc = transferFunc;
     }
 
-//    protected void updateWeights(double learningRate) {
-//        int size = synapticWeights.length;
-//        double[] deltaWeights = new double[size];
-//        for(int i = 0; i < size; i++){
-//            
-//            // tinh deltaWeight voi tham so learningRate va momentum
-//            deltaWeights[i] = learningRate * delta * input[i];
-////            deltaWeights[i] += momentum*previousDeltaWeights[i];
-//            
-//            // Cap nhat synapticWeight
-//            synapticWeights[i] += deltaWeights[i];
-//        }
-//        
-//        // cap nhap previousDeltaWeights
-////        this.previousDeltaWeights = deltaWeights;
-//        
-//        // cap nhap bias
-//        double deltaBias = learningRate * delta;
-////        deltaBias += momentum*prevDeltaBias;
-//        
-//        this.bias += deltaBias;
-////        this.prevDeltaBias = deltaBias;
-//    }
 }

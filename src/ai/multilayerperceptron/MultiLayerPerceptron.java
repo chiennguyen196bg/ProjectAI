@@ -47,24 +47,7 @@ public class MultiLayerPerceptron {
         return input;
     }
 
-    // khoi tao mang delta
-    private double[][] initDeltas() {
-        double[][] deltas = new double[nLayers][];
-        for (int i = 0; i < nLayers; i++) {
-            deltas[i] = new double[layers.get(i).size()];
-        }
-        return deltas;
-    }
-
-    //Khoi tao mang delta weights
-    private double[][][] initDeltaWeights() {
-        double[][][] deltaWeights = new double[nLayers][][];
-        for (int i = 0; i < nLayers; i++) {
-            Layer layer = layers.get(i);
-            deltaWeights[i] = new double[layer.size()][layer.getPrevSize()];
-        }
-        return deltaWeights;
-    }
+    
 
     
 
@@ -80,10 +63,10 @@ public class MultiLayerPerceptron {
         for(int i = nLayers - 2; i >= 0; i--){
             Layer layer = layers.get(i);
             Layer nextLayer = layers.get(i + 1);
-            for(int iNeuron = 0, size1 = layer.size(); iNeuron < size1; iNeuron++){
+            for(int iNeuron = 0, size = layer.size(); iNeuron < size; iNeuron++){
                 double e = 0;
                 for(Neuron neuron : nextLayer.getNeurons()){
-                    e += neuron.getDelta() * neuron.getSynapticWeights()[iNeuron];
+                    e += neuron.getDelta() * neuron.getSynapticWeight(iNeuron);
                 }
                 Neuron neuron = layer.getNeuron(iNeuron);
                 neuron.setDelta(e * neuron.getActivationDerivative());
