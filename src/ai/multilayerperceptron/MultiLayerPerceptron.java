@@ -91,7 +91,7 @@ public class MultiLayerPerceptron {
             }
         }
 
-        return evaluteError(output, targetOutput);
+        return evaluteRootMeanSquaredError(output, targetOutput);
     }
 
 //    public double batchBackPropagation(ArrayList<double[]> examples, ArrayList<double[]> desiredOutputs, double learningRate) {
@@ -133,6 +133,16 @@ public class MultiLayerPerceptron {
             error += e * e;
         }
         return error / 2;
+    }
+    
+    protected double evaluteRootMeanSquaredError(double output[], double targetOutput[]){
+         double error = 0;
+        int size = output.length;
+        for (int i = 0; i < size; i++) {
+            double e = targetOutput[i] - output[i];
+            error += e * e;
+        }
+        return Math.sqrt(error / size);
     }
     
     public void resetDelta(){

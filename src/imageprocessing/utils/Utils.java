@@ -56,10 +56,12 @@ public class Utils {
         return image.getSubimage(leftCol, topRow, newWidth, newHeight);
     }
     
+   
+    
     public static boolean haveInRow(BufferedImage img, int row){
         for(int col = 0, width = img.getWidth(); col < width; col++){
             Color color = new Color(img.getRGB(col, row));
-            if(color.getBlue() == 0)
+            if(color.equals(Color.BLACK))
                 return true;
         }
         return false;
@@ -68,7 +70,7 @@ public class Utils {
     public static boolean haveInCol(BufferedImage img, int col){
         for(int row = 0, height = img.getHeight(); row < height; row++){
             Color color = new Color(img.getRGB(col, row));
-            if(color.getBlue() == 0)
+            if(color.equals(Color.BLACK))
                 return true;
         }
         return false;
