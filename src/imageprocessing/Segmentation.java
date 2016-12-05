@@ -88,9 +88,9 @@ public class Segmentation {
      * @param word word image
      * @return array list of character images
      */
-    public static ArrayList<MyCharacter> getChars(BufferedImage word) {
+    public static ArrayList<BufferedImage> getChars(BufferedImage word) {
         word = Utils.fit(word);
-        ArrayList<MyCharacter> chars = new ArrayList<>();
+        ArrayList<BufferedImage> chars = new ArrayList<>();
         int height = word.getHeight();
         int width = word.getWidth();
 
@@ -99,10 +99,10 @@ public class Segmentation {
             if(histogram[col1] == 1){
                 for(int col2 = col1 + 1; col2 < width; col2++){
                     if(histogram[col2] == 0 || col2 == width - 1){
-                        BufferedImage _char = 
-                                word.getSubimage(col1, 0, col2 - col1, height);
+                        BufferedImage t_char = 
+                                word.getSubimage(col1, 0, col2 - col1 + 1, height);
                         
-                        chars.add(new MyCharacter(_char));
+                        chars.add(t_char);
                         col1 = col2 + 1;
                         break;
                     }

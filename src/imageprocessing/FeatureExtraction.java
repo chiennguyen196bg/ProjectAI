@@ -47,7 +47,7 @@ public class FeatureExtraction {
         return null;
     }
 
-    public static double[] getFeatureByResizingSquare(BufferedImage img, int side) throws IOException {
+    public static double[] getFeatureByResizingSquare(BufferedImage img, int side) {
         BufferedImage fittedImg = Utils.fit(img);
         int height = fittedImg.getHeight();
         int width = fittedImg.getWidth();

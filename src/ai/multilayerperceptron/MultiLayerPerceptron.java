@@ -76,9 +76,7 @@ public class MultiLayerPerceptron {
     }
     
     public double backPropagate(
-            double[] example, double[] targetOutput,
-            double learningRate, double momentum
-    ) {
+            double[] example, double[] targetOutput, double learningRate) {
         
         double output[] = execute(example);
         
@@ -87,11 +85,11 @@ public class MultiLayerPerceptron {
         // update weight and bias
         for(Layer layer : layers){
             for(Neuron neuron : layer.getNeurons()){
-                neuron.updateSynapticWeightsAndBias(learningRate, momentum);
+                neuron.updateSynapticWeightsAndBias(learningRate);
             }
         }
 
-        return evaluteRootMeanSquaredError(output, targetOutput);
+        return evaluteError(output, targetOutput);
     }
 
 //    public double batchBackPropagation(ArrayList<double[]> examples, ArrayList<double[]> desiredOutputs, double learningRate) {
@@ -115,18 +113,8 @@ public class MultiLayerPerceptron {
 //        updateWeights(deltaWeights);
 //        return err/size;
 //    }
-//    private void updateWeights(double[][][] deltaWeights) {
-//        for (int iLayer = 0; iLayer < nLayers; iLayer++) {
-//            layers.get(iLayer).updateWeights(deltaWeights[iLayer]);
-//        }
-//    }
-//    
-//    private void updateWeights(double[][][] deltaWeights, double momentum) {
-//        for (int iLayer = 0; iLayer < nLayers; iLayer++) {
-//            layers.get(iLayer).updateWeights(deltaWeights[iLayer], momentum);
-//        }
-//    }
-    protected double evaluteError(double output[], double targetOutput[]) {
+
+    private static double evaluteMeanSquaredError(double output[], double targetOutput[]) {
         double error = 0;
         for (int i = 0, size = output.length; i < size; i++) {
             double e = targetOutput[i] - output[i];
@@ -135,7 +123,7 @@ public class MultiLayerPerceptron {
         return error / 2;
     }
     
-    protected double evaluteRootMeanSquaredError(double output[], double targetOutput[]){
+    private static double evaluteRootMeanSquaredError(double output[], double targetOutput[]){
          double error = 0;
         int size = output.length;
         for (int i = 0; i < size; i++) {
@@ -145,10 +133,14 @@ public class MultiLayerPerceptron {
         return Math.sqrt(error / size);
     }
     
-    public void resetDelta(){
+    public static double evaluteError(double output[], double targetOutput[]){
+        return evaluteRootMeanSquaredError(output, targetOutput);
+    }
+    
+    public void resetTmpVar(){
         for(Layer layer : layers){
             for(Neuron neuron : layer.getNeurons()){
-                neuron.resetDelta();
+                neuron.resetTempVar();
             }
         }
     }

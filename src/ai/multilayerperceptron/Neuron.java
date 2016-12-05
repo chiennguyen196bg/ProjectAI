@@ -20,9 +20,6 @@ public class Neuron {
     private TransferFunction transferFunc;
     private double[] input;
 
-    private double prevDeltaBias;
-    private double[] previousDeltaWeights;
-
     public Neuron(int prevLayerSize, TransferFunction func) {
 
         this.transferFunc = func;
@@ -32,8 +29,7 @@ public class Neuron {
             synapticWeights[i] = Math.random() / 10000000000000.0;
         }
         this.bias = Math.random() / 10000000000000.0;
-        this.previousDeltaWeights = new double[prevLayerSize];
-        this.prevDeltaBias = 0;
+        
     }
 
     public double activate(double[] input) {
@@ -59,17 +55,13 @@ public class Neuron {
         return this.transferFunc.evaluteDerivate(output);
     }
 
-    protected void updateSynapticWeightsAndBias(double learningRate, double momentum) {
+    protected void updateSynapticWeightsAndBias(double learningRate) {
         int size = synapticWeights.length;
         for (int i = 0; i < size; i++) {
             double deltaWeight = learningRate * delta * input[i];
-            deltaWeight += momentum * previousDeltaWeights[i];
             synapticWeights[i] += deltaWeight;
-            previousDeltaWeights[i] = deltaWeight;
         }
-        double deltaBias = learningRate * delta ;
-        bias += deltaBias;
-        prevDeltaBias = deltaBias;
+        bias += learningRate * delta;
         delta = 0;
     }
 
@@ -101,8 +93,12 @@ public class Neuron {
         this.delta = delta;
     }
 
-    public void resetDelta() {
-        this.delta = 0;
+    public void resetTempVar() {
+        delta = 0;
+        output = 0;
+        for(int i = 0, size = input.length; i < size; i++){
+            input[i] = 0;
+        }
     }
 
     public TransferFunction getTransferFunc() {
