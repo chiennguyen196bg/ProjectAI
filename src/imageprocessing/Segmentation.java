@@ -5,7 +5,6 @@
  */
 package imageprocessing;
 
-import imageprocessing.segmentationobject.MyCharacter;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import imageprocessing.utils.Utils;

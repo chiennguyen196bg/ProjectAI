@@ -19,6 +19,9 @@ public class Neuron {
     private double delta;
     private TransferFunction transferFunc;
     private double[] input;
+    
+//    private double[] prevDeltaWeight;
+//    private double prevDeltaBias;
 
     public Neuron(int prevLayerSize, TransferFunction func) {
 
@@ -29,6 +32,9 @@ public class Neuron {
             synapticWeights[i] = Math.random() / 10000000000000.0;
         }
         this.bias = Math.random() / 10000000000000.0;
+        
+//        this.prevDeltaWeight = new double[prevLayerSize];
+//        this.prevDeltaBias = 0;
         
     }
 
@@ -61,7 +67,8 @@ public class Neuron {
             double deltaWeight = learningRate * delta * input[i];
             synapticWeights[i] += deltaWeight;
         }
-        bias += learningRate * delta;
+        double deltaBias = learningRate * delta;
+        bias += deltaBias;
         delta = 0;
     }
 
